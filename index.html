@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VODA 입찰 견적서</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --red:#E53E3E; --red-dark:#C53030; --red-bg:#FFF5F5; --red-border:#FEB2B2;
+      --dark:#1A202C; --dark2:#2D3748; --gray:#718096; --gray-light:#EDF2F7;
+      --border:#E2E8F0; --white:#FFFFFF; --bg:#F7FAFC; --green:#38A169; --green-bg:#F0FFF4; --green-border:#9AE6B4;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--dark);}
+
+    /* ── 헤더 ── */
+    .header{background:var(--dark);height:54px;display:flex;align-items:center;padding:0 28px;gap:14px;position:sticky;top:0;z-index:100;box-shadow:0 2px 10px rgba(0,0,0,0.3);}
+    .logo{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:3px;color:#fff;}
+    .logo span{color:var(--red);}
+    .hdiv{width:1px;height:18px;background:rgba(255,255,255,0.15);}
+    .hsub{font-size:11px;color:#A0AEC0;letter-spacing:0.3px;}
+    .hright{margin-left:auto;display:flex;gap:8px;align-items:center;}
+    .hbtn{padding:6px 14px;border-radius:6px;border:none;font-size:12px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:all 0.13s;}
+    .hbtn-ghost{background:rgba(255,255,255,0.08);color:#CBD5E0;border:1px solid rgba(255,255,255,0.12);}
+    .hbtn-ghost:hover{background:rgba(255,255,255,0.14);color:#fff;}
+    .hbtn-red{background:var(--red);color:#fff;}
+    .hbtn-red:hover{background:var(--red-dark);}
+
+    /* ── 스텝 바 ── */
+    .step-bar{background:#fff;border-bottom:1px solid var(--border);padding:0 28px;display:flex;gap:0;}
+    .step-item{display:flex;align-items:center;gap:10px;padding:14px 20px 14px 0;cursor:pointer;opacity:0.4;transition:all 0.2s;position:relative;}
+    .step-item.active{opacity:1;}
+    .step-item.done{opacity:0.7;}
+    .step-item.active::after{content:'';position:absolute;bottom:-1px;left:0;right:20px;height:2px;background:var(--red);}
+    .step-num{width:24px;height:24px;border-radius:50%;background:var(--gray-light);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--gray);flex-shrink:0;transition:all 0.2s;}
+    .step-item.active .step-num{background:var(--red);color:#fff;}
+    .step-item.done .step-num{background:var(--green);color:#fff;}
+    .step-label{font-size:13px;font-weight:600;color:var(--dark2);}
+    .step-sub{font-size:11px;color:var(--gray);margin-top:1px;}
+    .step-arrow{color:var(--border);font-size:18px;margin-right:10px;margin-left:10px;}
+
+    /* ── 컨텐츠 ── */
+    .content{max-width:900px;margin:0 auto;padding:28px 24px;}
+
+    /* 카드 */
+    .card{background:#fff;border-radius:14px;border:1px solid var(--border);padding:24px;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,0.04);}
+    .card-header{display:flex;align-items:center;gap:10px;margin-bottom:18px;}
+    .card-step-badge{width:28px;height:28px;border-radius:50%;background:var(--red);color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .card-title{font-size:16px;font-weight:700;color:var(--dark);}
+    .card-desc{font-size:12px;color:var(--gray);margin-top:1px;}
+
+    /* 입력 */
+    .search-row{display:flex;gap:10px;margin-bottom:14px;}
+    .search-input{flex:1;padding:12px 16px;border:1.5px solid var(--border);border-radius:9px;font-size:14px;font-family:'Noto Sans KR',sans-serif;outline:none;transition:border 0.13s;}
+    .search-input:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(229,62,62,0.08);}
+    .search-btn{padding:12px 22px;background:var(--red);color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:all 0.13s;white-space:nowrap;}
+    .search-btn:hover{background:var(--red-dark);}
+
+    /* 쇼핑몰 그리드 */
+    .shop-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:6px;}
+    .shop-card{display:flex;align-items:center;gap:12px;background:var(--bg);border:1.5px solid var(--border);border-radius:11px;padding:12px 16px;text-decoration:none;transition:all 0.15s;cursor:pointer;}
+    .shop-card:hover{border-color:var(--red);background:#fff;box-shadow:0 2px 10px rgba(229,62,62,0.1);transform:translateY(-1px);}
+    .shop-emoji{font-size:22px;flex-shrink:0;}
+    .shop-info .shop-name{font-size:13px;font-weight:700;color:var(--dark);}
+    .shop-info .shop-action{font-size:11px;color:var(--red);margin-top:1px;font-weight:600;}
+
+    /* 가격 입력 박스 */
+    .price-box{background:var(--red-bg);border:1.5px solid var(--red-border);border-radius:12px;padding:18px 20px;margin-top:14px;}
+    .price-box-title{font-size:13px;font-weight:700;color:var(--red-dark);margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+    .price-fields{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;}
+    .price-fields .fg{flex:1;min-width:130px;}
+    .fg{margin-bottom:0;}
+    .fg label{display:block;font-size:11px;font-weight:700;color:var(--dark2);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.2px;}
+    .fg input,.fg textarea{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'Noto Sans KR',sans-serif;outline:none;transition:border 0.13s;}
+    .fg input:focus,.fg textarea:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(229,62,62,0.08);}
+    .fg textarea{resize:vertical;min-height:68px;}
+    .fg2{margin-bottom:10px;}
+    .fg2 label{display:block;font-size:11px;font-weight:700;color:var(--dark2);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.2px;}
+    .fg2 input,.fg2 textarea{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'Noto Sans KR',sans-serif;outline:none;transition:border 0.13s;}
+    .fg2 input:focus,.fg2 textarea:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(229,62,62,0.08);}
+    .fg2 textarea{resize:vertical;min-height:68px;}
+    .frow{display:flex;gap:10px;}.frow .fg2{flex:1;}
+    .price-display-big{font-size:26px;font-weight:700;color:var(--red);padding:8px 0;white-space:nowrap;align-self:flex-end;}
+    .apply-btn{padding:11px 22px;background:var(--dark);color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;white-space:nowrap;transition:all 0.13s;align-self:flex-end;}
+    .apply-btn:hover{background:var(--dark2);}
+
+    /* 견적서 폼 */
+    .quote-section{margin-bottom:18px;}
+    .qs-title{font-size:12px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:0.8px;padding-bottom:8px;border-bottom:1px solid var(--border);margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+    .qs-title::before{content:'';width:3px;height:12px;background:var(--red);border-radius:2px;display:inline-block;}
+
+    /* 품목 */
+    .item-block{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:8px;position:relative;}
+    .item-label{font-size:10px;font-weight:700;color:#fff;background:var(--red);padding:2px 8px;border-radius:4px;position:absolute;top:-9px;left:12px;}
+    .item-del{position:absolute;top:10px;right:10px;background:var(--red-bg);border:1px solid var(--red-border);border-radius:5px;padding:3px 8px;color:var(--red);font-size:11px;font-weight:700;cursor:pointer;transition:all 0.13s;}
+    .item-del:hover{background:var(--red);color:#fff;}
+    .item-inner{margin-top:8px;}
+    .item-row{display:flex;gap:8px;margin-bottom:8px;}
+    .item-row .fg2{flex:1;margin-bottom:0;}
+    .item-row .fg2.sm{flex:0 0 78px;}
+    .add-btn{width:100%;padding:9px;border:1.5px dashed var(--red-border);background:transparent;border-radius:9px;color:var(--red);font-size:12px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:all 0.13s;margin-bottom:14px;}
+    .add-btn:hover{background:var(--red-bg);}
+
+    /* 합계 */
+    .tot-wrap{background:var(--dark);border-radius:12px;padding:16px 18px;margin-bottom:20px;}
+    .tot-row{display:flex;justify-content:space-between;font-size:13px;padding:4px 0;color:#A0AEC0;}
+    .tot-row.final{font-size:19px;font-weight:700;color:#fff;border-top:1px solid rgba(255,255,255,0.12);padding-top:10px;margin-top:6px;}
+    .tot-row.final span:last-child{color:#FC8181;}
+
+    /* PDF 버튼 */
+    .pdf-btn{width:100%;padding:15px;background:var(--red);color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:all 0.15s;letter-spacing:0.3px;}
+    .pdf-btn:hover{background:var(--red-dark);transform:translateY(-1px);box-shadow:0 4px 16px rgba(229,62,62,0.35);}
+
+    /* 완료 뱃지 */
+    .done-badge{display:inline-flex;align-items:center;gap:5px;background:var(--green-bg);border:1px solid var(--green-border);border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700;color:var(--green);margin-left:auto;}
+
+    /* 안내 박스 */
+    .info-tip{background:#EBF8FF;border:1px solid #BEE3F8;border-radius:8px;padding:10px 14px;font-size:12px;color:#2C5282;line-height:1.7;margin-bottom:14px;}
+
+    /* 페이지 숨김 */
+    .page{display:none;}
+    .page.active{display:block;}
+  </style>
+</head>
+<body>
+
+<!-- 헤더 -->
+<div class="header">
+  <div class="logo">V<span>O</span>DA</div>
+  <div class="hdiv"></div>
+  <div class="hsub">입찰 기성품 견적서 시스템</div>
+  <div class="hright">
+    <button class="hbtn hbtn-ghost" onclick="resetAll()">✏️ 새 견적</button>
+    <button class="hbtn hbtn-red" onclick="doPrint()">🖨️ PDF 출력</button>
+  </div>
+</div>
+
+<!-- 스텝 바 -->
+<div class="step-bar">
+  <div class="step-item active" id="step-1" onclick="goStep(1)">
+    <div class="step-num" id="sn1">1</div>
+    <div><div class="step-label">모델 입력</div><div class="step-sub">기성품 모델명 검색</div></div>
+  </div>
+  <div class="step-arrow">›</div>
+  <div class="step-item" id="step-2" onclick="goStep(2)">
+    <div class="step-num" id="sn2">2</div>
+    <div><div class="step-label">최저가 확인</div><div class="step-sub">쇼핑몰에서 가격 확인</div></div>
+  </div>
+  <div class="step-arrow">›</div>
+  <div class="step-item" id="step-3" onclick="goStep(3)">
+    <div class="step-num" id="sn3">3</div>
+    <div><div class="step-label">견적서 작성</div><div class="step-sub">발주처·품목 입력 후 PDF</div></div>
+  </div>
+  <div class="step-arrow">›</div>
+  <div class="step-item" id="step-4" onclick="goStep(4)" style="cursor:pointer;">
+    <div class="step-num" id="sn4">📁</div>
+    <div><div class="step-label">이력 관리</div><div class="step-sub">입찰번호로 조회</div></div>
+  </div>
+</div>
+
+<!-- ── STEP 1 ── -->
+<div class="content page active" id="page-1">
+  <div class="card">
+    <div class="card-header">
+      <div class="card-step-badge">1</div>
+      <div>
+        <div class="card-title">기성품 모델명 입력</div>
+        <div class="card-desc">입찰 사이트의 기성품 모델명을 입력하세요</div>
+      </div>
+    </div>
+    <div class="search-row">
+      <input class="search-input" type="text" id="model-input"
+        placeholder="예) Samsung QN65Q80C  /  LG F873SN35E  /  Sony WH-1000XM5"
+        onkeydown="if(event.key==='Enter') doStep1()">
+      <button class="search-btn" onclick="doStep1()">다음 단계 →</button>
+    </div>
+    <div class="info-tip">
+      💡 모델번호를 정확히 입력할수록 최저가 검색이 정확합니다.<br>
+      여러 품목은 <strong>3단계</strong>에서 추가로 입력할 수 있습니다.
+    </div>
+  </div>
+</div>
+
+<!-- ── STEP 2 ── -->
+<div class="content page" id="page-2">
+  <div class="card">
+    <div class="card-header">
+      <div class="card-step-badge">2</div>
+      <div>
+        <div class="card-title">최저가 확인</div>
+        <div class="card-desc">아래 쇼핑몰 중 하나를 클릭해서 최저가를 확인하세요</div>
+      </div>
+      <div class="done-badge" id="model-badge"></div>
+    </div>
+
+    <!-- 쇼핑몰 링크 -->
+    <div class="shop-grid" id="shop-grid"></div>
+
+    <!-- 가격 입력 -->
+    <div class="price-box">
+      <div class="price-box-title">📋 입찰 정보 입력</div>
+      <div class="price-fields" style="margin-bottom:12px;">
+        <div class="fg" style="flex:0 0 180px">
+          <label>입찰번호 *</label>
+          <input type="text" id="bid-num" placeholder="예) 2024-입찰-001" style="border-color:#805AD5;">
+        </div>
+        <div class="fg">
+          <label>최저가 확인 URL</label>
+          <input type="url" id="lowest-url" placeholder="최저가 확인한 페이지 주소 붙여넣기">
+        </div>
+      </div>
+      <div class="price-box-title" style="margin-top:4px;">💰 확인한 최저가를 입력하세요</div>
+      <div class="price-fields">
+        <div class="fg">
+          <label>최저 쇼핑몰</label>
+          <input type="text" id="price-shop" value="네이버쇼핑" placeholder="네이버쇼핑">
+        </div>
+        <div class="fg">
+          <label>최저가 (원, VAT포함)</label>
+          <input type="number" id="price-val" placeholder="0" inputmode="numeric" oninput="updatePriceDisp()">
+        </div>
+      </div>
+
+      <!-- 조정 슬라이더 -->
+      <div style="margin-top:14px;background:#fff;border-radius:10px;padding:14px 16px;border:1px solid var(--red-border);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <span style="font-size:12px;font-weight:700;color:var(--dark2);">📊 입찰가 조정</span>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:12px;color:var(--gray);">조정률:</span>
+            <span id="pct-label" style="font-size:15px;font-weight:700;color:var(--red);min-width:52px;text-align:center;">0%</span>
+          </div>
+        </div>
+        <input type="range" id="pct-slider" min="-10" max="10" step="0.5" value="0"
+          style="width:100%;accent-color:var(--red);height:6px;cursor:pointer;"
+          oninput="updatePriceDisp()">
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--gray);margin-top:4px;">
+          <span>-10%</span><span>-5%</span><span>0%</span><span>+5%</span><span>+10%</span>
+        </div>
+      </div>
+
+      <!-- 결과 표시 -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:14px;flex-wrap:wrap;gap:10px;">
+        <div>
+          <div style="font-size:11px;color:var(--gray);margin-bottom:3px;">최저가</div>
+          <div style="font-size:16px;color:var(--gray);text-decoration:line-through;" id="price-original">0원</div>
+        </div>
+        <div style="font-size:20px;color:var(--border);">→</div>
+        <div>
+          <div style="font-size:11px;color:var(--red);font-weight:700;margin-bottom:3px;">견적 적용가 (VAT포함)</div>
+          <div class="price-display-big" id="price-disp" style="font-size:28px;">0원</div>
+        </div>
+        <button class="apply-btn" onclick="doStep2()">견적서 작성 →</button>
+      </div>
+    </div>
+  </div>
+  <button class="hbtn hbtn-ghost" style="border:1px solid var(--border);border-radius:8px;padding:9px 16px;font-size:13px;background:#fff;color:var(--gray);cursor:pointer;" onclick="goStep(1)">← 이전으로</button>
+</div>
+
+<!-- ── STEP 3 ── -->
+<div class="content page" id="page-3">
+  <div class="card">
+    <div class="card-header">
+      <div class="card-step-badge">3</div>
+      <div>
+        <div class="card-title">견적서 작성</div>
+        <div class="card-desc">발주처 정보와 품목을 확인 후 PDF를 생성하세요</div>
+      </div>
+    </div>
+
+    <!-- 기본 정보 -->
+    <div class="quote-section">
+      <div class="qs-title">기본 정보</div>
+      <div class="frow">
+        <div class="fg2"><label>입찰번호</label><input id="q-bid-num" readonly style="background:#F7FAFC;color:#805AD5;font-weight:700;border-color:#D6BCFA;"></div>
+        <div class="fg2"><label>일련번호</label><input id="q-num"></div>
+        <div class="fg2"><label>견적일</label><input id="q-date"></div>
+        <div class="fg2"><label>결제조건</label><input id="q-pay" value="정기지불 조건"></div>
+        <div class="fg2"><label>유효기간</label><input id="q-valid" value="1 Month"></div>
+      </div>
+    </div>
+
+    <!-- 발주처 -->
+    <div class="quote-section">
+      <div class="qs-title">발주처 정보</div>
+      <div class="frow">
+        <div class="fg2" style="flex:2"><label>수신 (발주처) *</label><input id="q-to" placeholder="예) 삼성에스디아이(주)"></div>
+        <div class="fg2"><label>담당자</label><input id="q-mgr" placeholder="예) 홍길동 프로님"></div>
+        <div class="fg2"><label>TEL / FAX</label><input id="q-tel"></div>
+      </div>
+    </div>
+
+    <!-- 견적 내용 -->
+    <div class="quote-section">
+      <div class="qs-title">견적 내용</div>
+      <div class="fg2"><label>제목</label><input id="q-title"></div>
+      <div class="frow">
+        <div class="fg2"><label>견적 담당자</label><input id="q-our-mgr" value="신성창"></div>
+        <div class="fg2"><label>담당자 연락처</label><input id="q-our-tel" value="070-4647-0408"></div>
+      </div>
+      <div class="fg2"><label>비고</label><textarea id="q-note" placeholder="특이사항 입력"></textarea></div>
+    </div>
+
+    <!-- 제작사양서 첨부 -->
+    <div class="quote-section">
+      <div class="qs-title">제작사양서 첨부</div>
+      <div style="background:#F0FFF4;border:1.5px solid #9AE6B4;border-radius:12px;padding:16px 18px;">
+        <div style="font-size:12px;color:#276749;margin-bottom:12px;font-weight:600;">
+          📎 첨부 파일은 Google Drive(VODA_사양서 폴더)에 자동 저장됩니다
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+          <label for="spec-file" style="padding:10px 18px;background:#38A169;color:#fff;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;">
+            📁 파일 선택
+          </label>
+          <input type="file" id="spec-file" style="display:none"
+            accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.hwp,.jpg,.jpeg,.png"
+            onchange="previewFile(this)">
+          <div id="file-preview" style="flex:1;font-size:13px;color:#718096;">선택된 파일 없음</div>
+        </div>
+        <div id="upload-status" style="margin-top:10px;font-size:12px;color:#38A169;display:none;"></div>
+      </div>
+    </div>
+
+    <!-- 품목 -->
+    <div class="quote-section">
+      <div class="qs-title">품목 목록</div>
+      <div id="item-rows"></div>
+      <button class="add-btn" onclick="addItem()">＋ 품목 추가</button>
+    </div>
+
+    <!-- 합계 -->
+    <div class="tot-wrap" id="tot-wrap"></div>
+
+    <!-- 버튼 영역 -->
+    <div id="save-status" style="display:none;padding:12px 16px;border-radius:10px;font-size:13px;font-weight:600;margin-bottom:12px;text-align:center;"></div>
+    <div style="display:flex;gap:10px;margin-bottom:8px;">
+      <button class="pdf-btn" id="save-btn" onclick="doSave()"
+        style="background:#2B6CB0;flex:1;">
+        💾 저장 (Google Drive + Sheets)
+      </button>
+      <button class="pdf-btn" id="pdf-btn" onclick="doPrint()"
+        style="background:#2D3748;flex:1;opacity:0.4;cursor:not-allowed;" disabled>
+        🖨️ PDF 생성
+      </button>
+    </div>
+    <div style="font-size:11px;color:#9CA3AF;text-align:center;margin-bottom:8px;">
+      💡 저장 완료 후 PDF 생성 버튼이 활성화됩니다
+    </div>
+  </div>
+  <button class="hbtn hbtn-ghost" style="border:1px solid var(--border);border-radius:8px;padding:9px 16px;font-size:13px;background:#fff;color:var(--gray);cursor:pointer;margin-bottom:28px;" onclick="goStep(2)">← 이전으로</button>
+</div>
+
+<!-- ── STEP 4: 이력 관리 ── -->
+<div class="content page" id="page-4">
+  <div class="card">
+    <div class="card-header">
+      <div class="card-step-badge" style="background:#805AD5;">📁</div>
+      <div>
+        <div class="card-title">입찰 이력 관리</div>
+        <div class="card-desc">입찰번호로 검색하거나 전체 이력을 확인하세요</div>
+      </div>
+    </div>
+    <!-- 검색 -->
+    <div class="search-row" style="margin-bottom:16px;">
+      <input class="search-input" type="text" id="hist-search"
+        placeholder="입찰번호 검색  예) 2024-입찰-001"
+        oninput="renderHist()"
+        onkeydown="if(event.key==='Enter') renderHist()">
+      <button class="search-btn" style="background:#805AD5;" onclick="renderHist()">🔍 조회</button>
+      <button class="search-btn" style="background:#E53E3E;margin-left:4px;" onclick="clearHist()">🗑️ 전체삭제</button>
+    </div>
+    <!-- 이력 목록 -->
+    <div id="hist-list"></div>
+  </div>
+</div>
+
+<script>
+/* ── Google Sheets 연동 ── */
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbwp6OYSkAxjyCOxAbkMCnn5W9ZShUCHApj5xQ0fK-XuRXk9YQ7szCS1eFergWc5JOYE/exec';
+
+function saveToSheet(data) {
+  // fire-and-forget: 응답 기다리지 않음
+  fetch(GAS_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  }).catch(e => console.warn('Sheets 저장 실패:', e));
+}
+
+async function uploadFileToDrive(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        const base64 = e.target.result.split(',')[1];
+        const res = await fetch(GAS_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'upload',
+            fileName: file.name,
+            mimeType: file.type || 'application/octet-stream',
+            fileData: base64
+          })
+        });
+        const data = await res.json();
+        resolve(data.url || '');
+      } catch(err) {
+        console.warn('Drive 업로드 실패:', err);
+        resolve('');
+      }
+    };
+    reader.onerror = () => resolve('');
+    reader.readAsDataURL(file);
+  });
+}
+
+async function loadFromSheet() {
+  try {
+    const res = await fetch(GAS_URL + '?t=' + Date.now());
+    const data = await res.json();
+    return data.rows || [];
+  } catch(e) {
+    console.warn('Sheets 불러오기 실패:', e);
+    return [];
+  }
+}
+
+/* ── 고정 회사 정보 ── */
+const CO = {
+  name:'주식회사 보다', ceo:'최우영', biz:'259-86-01833',
+  addr:'충북 청주시 흥덕구 오송읍 오송생명10로 134',
+  tel:'070-4647-0408', email:'', manager:'신성창',
+  biz_type:'제조업', biz_item:'검사설비 및 지능형 감시카메라 제조'
+};
+
+const SHOPS = [
+  {name:'네이버쇼핑', emoji:'🟢', url:q=>`https://search.shopping.naver.com/search/all?query=${encodeURIComponent(q)}`},
+  {name:'다나와',     emoji:'🔵', url:q=>`https://search.danawa.com/dsearch.php?query=${encodeURIComponent(q)}`},
+  {name:'쿠팡',       emoji:'🟡', url:q=>`https://www.coupang.com/np/search?q=${encodeURIComponent(q)}`},
+  {name:'G마켓',      emoji:'🟠', url:q=>`http://browse.gmarket.co.kr/search?keyword=${encodeURIComponent(q)}`},
+  {name:'11번가',     emoji:'🔴', url:q=>`https://search.11st.co.kr/Search.tmall?kwd=${encodeURIComponent(q)}`},
+  {name:'에누리',     emoji:'⚪', url:q=>`https://www.enuri.com/search.jsp?keyword=${encodeURIComponent(q)}`},
+];
+
+const BRANDS = [
+  { keywords:['samsung','삼성','galaxy','갤럭시','qled','qn','neo qled'], name:'삼성전자 공식몰', emoji:'🔷', url:q=>`https://www.samsung.com/sec/search/?searchvalue=${encodeURIComponent(q)}` },
+  { keywords:['lg','엘지','oled','gram','dios','thinq'], name:'LG전자 공식몰', emoji:'🟣', url:q=>`https://www.lge.co.kr/search?query=${encodeURIComponent(q)}` },
+  { keywords:['apple','애플','iphone','ipad','macbook','airpods','imac','airtag'], name:'Apple 공식몰', emoji:'🍎', url:q=>`https://www.apple.com/kr/search/${encodeURIComponent(q)}?src=globalnav` },
+  { keywords:['sony','소니','wh-','wf-','xperia','bravia','playstation','ps5'], name:'Sony 공식몰', emoji:'🎮', url:q=>`https://www.sony.co.kr/search/searchResult?q=${encodeURIComponent(q)}` },
+  { keywords:['bosch','보쉬','gsb','gbh','gsr','gst','gcm'], name:'Bosch 공식몰', emoji:'🔧', url:q=>`https://www.bosch-diy.com/kr/ko/search/#query=${encodeURIComponent(q)}` },
+  { keywords:['hp','hewlett','laserjet','inkjet','envy','officejet','deskjet'], name:'HP 공식몰', emoji:'🖨️', url:q=>`https://www.hp.com/kr-ko/shop/SearchDisplay?searchTerm=${encodeURIComponent(q)}` },
+  { keywords:['canon','캐논','pixma','imageclass','eos'], name:'Canon 공식몰', emoji:'📷', url:q=>`https://www.canon-bs.co.kr/search?keyword=${encodeURIComponent(q)}` },
+  { keywords:['epson','엡손'], name:'Epson 공식몰', emoji:'🖨️', url:q=>`https://www.epson.co.kr/search?keyword=${encodeURIComponent(q)}` },
+  { keywords:['microsoft','마이크로소프트','surface','xbox'], name:'Microsoft 공식몰', emoji:'🪟', url:q=>`https://www.microsoft.com/ko-kr/search/explore?q=${encodeURIComponent(q)}` },
+  { keywords:['lenovo','레노버','thinkpad','thinkbook','ideapad'], name:'Lenovo 공식몰', emoji:'💻', url:q=>`https://www.lenovo.com/kr/ko/searchResultPage/?q=${encodeURIComponent(q)}` },
+  { keywords:['dyson','다이슨'], name:'Dyson 공식몰', emoji:'🌀', url:q=>`https://www.dyson.co.kr/search#q=${encodeURIComponent(q)}` },
+];
+
+function detectBrand(q) {
+  const lq = q.toLowerCase();
+  return BRANDS.find(b => b.keywords.some(k => lq.includes(k))) || null;
+}
+
+let items = [{code:'', spec:'', qty:1, price:0}];
+let lowestShop = '', lowestPrice = 0;
+let qno = parseInt(localStorage.getItem('voda_qno')||'1');
+let hist = JSON.parse(localStorage.getItem('voda_hist')||'[]');
+
+function todayStr(){
+  return new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit'}).replace(/\. /g,'/').replace(/\.$/,'');
+}
+function fmt(n){return (n||0).toLocaleString('ko-KR');}
+function g(id){return document.getElementById(id)?.value.trim()||'';}
+
+window.onload = () => {
+  const today = todayStr();
+  document.getElementById('q-date').value = today;
+  document.getElementById('q-num').value  = `${today}-${String(qno).padStart(2,'0')}`;
+  renderItems(); calcTot();
+};
+
+/* ── 스텝 이동 ── */
+function goStep(n) {
+  [1,2,3,4].forEach(i => {
+    document.getElementById(`page-${i}`)?.classList.toggle('active', i===n);
+    const s = document.getElementById(`step-${i}`);
+    if(!s) return;
+    s.classList.remove('active','done');
+    if(i===n) s.classList.add('active');
+    else if(i<n) s.classList.add('done');
+    const sn = document.getElementById(`sn${i}`);
+    if(sn && i !== 4) sn.textContent = i<n ? '✓' : i;
+  });
+  if(n===4) renderHist();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+/* ── STEP 1: 모델 입력 ── */
+function doStep1() {
+  const q = document.getElementById('model-input').value.trim();
+  if (!q) { alert('모델명을 입력해주세요.'); return; }
+
+  // 쇼핑몰 링크 생성
+  document.getElementById('model-badge').textContent = '🔍 ' + q;
+
+  // 브랜드 공식몰 감지
+  const brand = detectBrand(q);
+  const brandCard = brand ? `
+    <a class="shop-card" href="${brand.url(q)}" target="_blank"
+      style="border-color:#805AD5;background:#FAF5FF;grid-column:1/-1;">
+      <span class="shop-emoji">${brand.emoji}</span>
+      <div class="shop-info">
+        <div class="shop-name" style="color:#553C9A;font-weight:700;">${brand.name} ★</div>
+        <div class="shop-action" style="color:#805AD5;">공식 가격 확인 →</div>
+      </div>
+    </a>` : '';
+
+  document.getElementById('shop-grid').innerHTML = brandCard + SHOPS.map(s => `
+    <a class="shop-card" href="${s.url(q)}" target="_blank">
+      <span class="shop-emoji">${s.emoji}</span>
+      <div class="shop-info">
+        <div class="shop-name">${s.name}</div>
+        <div class="shop-action">최저가 확인 →</div>
+      </div>
+    </a>`).join('');
+
+  // 가격 입력 초기화
+  document.getElementById('price-val').value = '';
+  document.getElementById('price-disp').textContent = '0원';
+
+  // 견적서 모델명 자동 세팅
+  document.getElementById('q-title').value = `${q} 견적`;
+  items[0].spec = q;
+
+  goStep(2);
+}
+
+/* ── STEP 2: 최저가 입력 ── */
+function updatePriceDisp() {
+  const base = parseInt(document.getElementById('price-val').value)||0;
+  const pct  = parseFloat(document.getElementById('pct-slider').value)||0;
+  const adjusted = Math.round(base * (1 + pct/100));
+  const pctLabel = pct > 0 ? `+${pct}%` : pct < 0 ? `${pct}%` : '0%';
+  document.getElementById('pct-label').textContent = pctLabel;
+  document.getElementById('pct-label').style.color = pct < 0 ? '#38A169' : pct > 0 ? '#E53E3E' : '#718096';
+  document.getElementById('price-original').textContent = base.toLocaleString()+'원';
+  document.getElementById('price-original').style.textDecoration = pct !== 0 ? 'line-through' : 'none';
+  document.getElementById('price-disp').textContent = adjusted.toLocaleString()+'원';
+}
+
+function doStep2() {
+  const base  = parseInt(document.getElementById('price-val').value)||0;
+  const pct   = parseFloat(document.getElementById('pct-slider').value)||0;
+  const price = Math.round(base * (1 + pct/100));
+  const shop  = document.getElementById('price-shop').value.trim()||'네이버쇼핑';
+  const bn    = document.getElementById('bid-num').value.trim();
+  const url   = document.getElementById('lowest-url').value.trim();
+  if (!bn)   { alert('입찰번호를 입력해주세요.'); document.getElementById('bid-num').focus(); return; }
+  if (!base) { alert('최저가를 입력해주세요.'); return; }
+  lowestPrice = base; lowestShop = shop; lowestUrl = url; bidNum = bn;
+  items[0].price = price;
+  document.getElementById('q-bid-num').value = bn;
+  renderItems(); calcTot();
+  goStep(3);
+}
+
+/* ── STEP 3: 견적서 ── */
+function renderItems() {
+  document.getElementById('item-rows').innerHTML = items.map((it,i) => `
+    <div class="item-block">
+      <div class="item-label">품목 ${i+1}</div>
+      ${items.length>1 ? `<button class="item-del" onclick="delItem(${i})">✕ 삭제</button>` : ''}
+      <div class="item-inner">
+        <div class="item-row">
+          <div class="fg2" style="flex:0 0 120px"><label>품목코드</label><input value="${it.code||''}" placeholder="TSA-00001" oninput="items[${i}].code=this.value"></div>
+          <div class="fg2" style="flex:2"><label>규격 / 품명</label><input value="${it.spec||''}" placeholder="모델명 또는 품명" oninput="items[${i}].spec=this.value"></div>
+        </div>
+        <div class="item-row" style="margin-bottom:0">
+          <div class="fg2 sm"><label>수량</label><input type="number" value="${it.qty}" min="1" inputmode="numeric" oninput="items[${i}].qty=+this.value||1;calcTot()"></div>
+          <div class="fg2"><label>단가 (원, VAT포함)</label><input type="number" value="${it.price||''}" placeholder="0" inputmode="numeric" oninput="items[${i}].price=+this.value||0;calcTot()"></div>
+          <div class="fg2"><label>공급가액</label><input readonly value="${fmt(it.qty*it.price)}원" style="background:var(--bg);color:var(--red);font-weight:700;"></div>
+        </div>
+      </div>
+    </div>`).join('');
+  calcTot();
+}
+
+function addItem() { items.push({code:'',spec:'',qty:1,price:0}); renderItems(); }
+function delItem(i) { items.splice(i,1); renderItems(); }
+
+function calcTot() {
+  const supply = items.reduce((s,it)=>s+(it.qty*it.price),0);
+  const vat    = 0;
+  document.getElementById('tot-wrap').innerHTML = `
+    <div class="tot-row final"><span>합 계 금 액 (VAT 포함)</span><span>${fmt(supply)}원</span></div>`;
+}
+
+function previewFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  specFileName = file.name;
+  document.getElementById('file-preview').innerHTML =
+    `<span style="color:#2D3748;font-weight:600;">📄 ${file.name}</span>
+     <span style="color:#9CA3AF;font-size:11px;margin-left:8px;">(${(file.size/1024).toFixed(1)} KB)</span>`;
+}
+
+function resetAll() {
+  items = [{code:'',spec:'',qty:1,price:0}];
+  lowestPrice=0; lowestShop='';
+  document.getElementById('model-input').value='';
+  const today=todayStr();
+  document.getElementById('q-num').value  = `${today}-${String(qno).padStart(2,'0')}`;
+  document.getElementById('q-date').value = today;
+  ['q-to','q-mgr','q-tel','q-title','q-note'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('q-pay').value   = '정기지불 조건';
+  document.getElementById('q-valid').value = '1 Month';
+  document.getElementById('pct-slider').value = '0';
+  document.getElementById('price-val').value  = '';
+  document.getElementById('bid-num').value    = '';
+  document.getElementById('lowest-url').value = '';
+  document.getElementById('q-bid-num').value  = '';
+  bidNum=''; lowestUrl=''; specFileUrl=''; specFileName='';
+  document.getElementById('spec-file').value = '';
+  document.getElementById('file-preview').innerHTML = '선택된 파일 없음';
+  document.getElementById('upload-status').style.display = 'none';
+  updatePriceDisp();
+  document.getElementById('q-our-mgr').value = CO.manager;
+  document.getElementById('q-our-tel').value  = CO.tel;
+  savedRecord = null;
+  const saveBtn = document.getElementById('save-btn');
+  const pdfBtn  = document.getElementById('pdf-btn');
+  if(saveBtn){ saveBtn.disabled=false; saveBtn.textContent='💾 저장 (Google Drive + Sheets)'; saveBtn.style.background='#2B6CB0'; }
+  if(pdfBtn){ pdfBtn.disabled=true; pdfBtn.style.opacity='0.4'; pdfBtn.style.cursor='not-allowed'; pdfBtn.style.background='#2D3748'; }
+  const st = document.getElementById('save-status');
+  if(st) st.style.display='none';
+  renderItems(); calcTot(); goStep(1);
+}
+
+/* ── 저장 (Google Drive + Sheets) ── */
+let savedRecord = null;
+
+async function doSave() {
+  if (g('q-to')==='') { alert('수신(발주처)를 입력해주세요.'); document.getElementById('q-to').focus(); return; }
+
+  const saveBtn   = document.getElementById('save-btn');
+  const pdfBtn    = document.getElementById('pdf-btn');
+  const statusEl  = document.getElementById('save-status');
+
+  saveBtn.disabled = true;
+  saveBtn.textContent = '⏳ 저장 중...';
+  statusEl.style.display = 'block';
+  statusEl.style.background = '#EBF8FF';
+  statusEl.style.color = '#2B6CB0';
+  statusEl.textContent = '⏳ 저장 중입니다...';
+
+  // 사양서 파일 업로드 (백그라운드)
+  const fileInput = document.getElementById('spec-file');
+  if (fileInput.files[0] && !specFileUrl) {
+    const uploadStatus = document.getElementById('upload-status');
+    uploadStatus.style.display = 'block';
+    uploadStatus.textContent = '⏳ 사양서 Drive 업로드 중... (백그라운드)';
+    uploadFileToDrive(fileInput.files[0]).then(url => {
+      specFileUrl = url;
+      uploadStatus.textContent = url ? '✅ Drive 업로드 완료!' : '⚠️ 업로드 실패';
+      if (url && savedRecord) {
+        savedRecord.fileUrl = url;
+        saveToSheet(savedRecord); // URL 포함해서 재저장
+      }
+    });
+  }
+
+  const qNum=g('q-num'),qPay=g('q-pay'),qValid=g('q-valid'),qDate=g('q-date');
+  const toName=g('q-to'),toMgr=g('q-mgr'),toTel=g('q-tel'),title=g('q-title'),note=g('q-note');
+  const supply=items.reduce((s,it)=>s+(it.qty*it.price),0);
+  const total=supply;
+
+  savedRecord = {
+    bid: bidNum, t: (title||toName).substring(0,40), d: qDate,
+    p: fmt(total)+'원', model: items[0]?.spec||'', shop: lowestShop,
+    lowestPrice: fmt(lowestPrice)+'원', url: lowestUrl,
+    to: toName, mgr: toMgr, num: qNum,
+    fileUrl: specFileUrl, fileName: specFileName,
+  };
+
+  // 로컬 저장
+  hist.unshift(savedRecord);
+  hist=hist.slice(0,200);
+  localStorage.setItem('voda_hist',JSON.stringify(hist));
+  qno++; localStorage.setItem('voda_qno',qno);
+
+  // Google Sheets 저장 (백그라운드, 기다리지 않음)
+  saveToSheet(savedRecord);
+
+  // 완료 UI
+  statusEl.style.background = '#F0FFF4';
+  statusEl.style.color = '#276749';
+  statusEl.textContent = '✅ 저장 완료! Google Sheets & Drive에 저장됐습니다.';
+  saveBtn.textContent = '✅ 저장 완료';
+  saveBtn.style.background = '#38A169';
+
+  // PDF 버튼 활성화
+  pdfBtn.disabled = false;
+  pdfBtn.style.opacity = '1';
+  pdfBtn.style.cursor = 'pointer';
+  pdfBtn.style.background = '#E53E3E';
+}
+
+/* ── PDF 출력 ── */
+function doPrint() {
+  if (!savedRecord) { alert('먼저 저장 버튼을 눌러주세요.'); return; }
+
+  const qNum=g('q-num'),qPay=g('q-pay'),qValid=g('q-valid'),qDate=g('q-date');
+  const toName=g('q-to'),toMgr=g('q-mgr'),toTel=g('q-tel'),title=g('q-title'),note=g('q-note');
+  const ourMgr=g('q-our-mgr')||CO.manager, ourTel=g('q-our-tel')||CO.tel;
+  const supply=items.reduce((s,it)=>s+(it.qty*it.price),0);
+  const vat=0, total=supply;
+
+  function toKor(n){
+    if(!n)return '영원 정';
+    const u=['','십','백','천'],b=['','만','억','조'],c='영일이삼사오육칠팔구';
+    let r='',big=0,num=n;
+    while(num>0){const chunk=num%10000;if(chunk){let s='';for(let i=3;i>=0;i--){const d=Math.floor(chunk/Math.pow(10,i))%10;if(d)s+=c[d]+u[i];}r=s+b[big]+r;}num=Math.floor(num/10000);big++;}
+    return r+'원 정';
+  }
+
+  const rows=items.map((it,i)=>`
+    <tr>
+      <td>${i+1}</td><td>${it.code||''}</td><td class="tl">${it.spec||''}</td>
+      <td>${it.qty}</td><td class="tr">${fmt(it.price)}</td><td class="tr">${fmt(it.qty*it.price)}</td>
+    </tr>`).join('');
+
+  const html=`<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>견적서_${qNum}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Noto Sans KR',sans-serif;background:#fff;color:#1A202C;padding:30px 38px;font-size:12px;}
+    .qt{text-align:center;font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:10px;margin-bottom:18px;text-decoration:underline;text-underline-offset:4px;}
+    .wrap{display:flex;}
+    .li{flex:1;border:1px solid #CBD5E0;}
+    .ri{width:240px;border:1px solid #CBD5E0;border-left:none;}
+    .ir{display:flex;border-bottom:1px solid #E2E8F0;}.ir:last-child{border-bottom:none;}
+    .il{background:#F7FAFC;font-weight:600;color:#4A5568;padding:5px 10px;width:68px;flex-shrink:0;border-right:1px solid #E2E8F0;font-size:10px;}
+    .iv{padding:5px 10px;flex:1;font-size:11px;}
+    .la{padding:10px;text-align:center;border-bottom:1px solid #E2E8F0;}
+    .vl{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;}
+    .vl span{color:#E53E3E;}.vs{font-size:7px;color:#A0AEC0;letter-spacing:1px;}
+    .rr{display:flex;border-bottom:1px solid #E2E8F0;}.rr:last-child{border-bottom:none;}
+    .rl{background:#F7FAFC;font-weight:600;color:#4A5568;padding:5px 8px;width:80px;flex-shrink:0;border-right:1px solid #E2E8F0;font-size:10px;}
+    .rv{padding:5px 8px;flex:1;font-size:10px;}
+    .sb{border:1px solid #CBD5E0;border-top:none;padding:6px 10px;font-size:11px;}
+    .ab{border:1px solid #CBD5E0;border-top:none;padding:6px 10px;display:flex;justify-content:space-between;font-size:11px;font-weight:700;}
+    .nb{border:1px solid #CBD5E0;border-top:none;padding:6px 10px;min-height:28px;margin-bottom:14px;font-size:10px;color:#718096;}
+    table{width:100%;border-collapse:collapse;}
+    th{background:#1A202C;color:#fff;padding:7px 5px;text-align:center;font-size:10px;font-weight:700;border:1px solid #2D3748;}
+    td{padding:6px 5px;text-align:center;border:1px solid #E2E8F0;font-size:11px;}
+    td.tl{text-align:left;}td.tr{text-align:right;}
+    tr:nth-child(even) td{background:#F7FAFC;}
+    .sr td{background:#EDF2F7!important;font-weight:700;}
+    .totrow td{background:#1A202C!important;color:#fff!important;font-weight:700;font-size:12px;}
+    .bot{display:none;}.src{display:none;}.sgn{display:none;}
+    @media print{ @page{margin:8mm;size:A4;}}
+  </style></head><body>
+  <div class="qt">QUOTATION</div>
+  <div class="wrap">
+    <div class="li">
+      <div class="ir"><div class="il">일련번호</div><div class="iv">${qNum}</div></div>
+      <div class="ir"><div class="il">수&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;신</div><div class="iv"><strong>${toName}</strong></div></div>
+      <div class="ir"><div class="il">담&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;당</div><div class="iv">${toMgr}</div></div>
+      <div class="ir"><div class="il">TEL/FAX</div><div class="iv">${toTel}</div></div>
+      <div class="ir"><div class="il">결제조건</div><div class="iv">${qPay}</div></div>
+      <div class="ir"><div class="il">유효기간</div><div class="iv">${qValid}</div></div>
+    </div>
+    <div class="ri">
+      <div class="la"><div class="vl">V<span>O</span>DA</div><div class="vs">VISION OF DIGITAL ANALYSIS</div></div>
+      <div class="rr"><div class="rl">사업자번호</div><div class="rv">${CO.biz}</div></div>
+      <div class="rr"><div class="rl">회사명/대표</div><div class="rv">${CO.name} / ${CO.ceo}</div></div>
+      <div class="rr"><div class="rl">주&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;소</div><div class="rv">${CO.addr}</div></div>
+      <div class="rr"><div class="rl">업태/종목</div><div class="rv">${CO.biz_type} / ${CO.biz_item}</div></div>
+      <div class="rr"><div class="rl">담&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;당</div><div class="rv">${ourMgr}</div></div>
+      <div class="rr"><div class="rl">TEL/Email</div><div class="rv">${ourTel} / ${CO.email}</div></div>
+    </div>
+  </div>
+  <div class="sb"><span style="font-weight:700">제 목 : </span>${title}</div>
+  <div class="ab"><span>금 액 : ${toKor(total)}</span><span>(￦${fmt(total)}원) / <span style="font-weight:400;color:#718096">VAT 포함</span></span></div>
+  <div class="nb"><strong>[비 고]</strong>${note?'<br>'+note:''}</div>
+  <table>
+    <thead><tr>
+      <th style="width:30px">no.</th><th style="width:84px">품목코드</th><th>규격</th>
+      <th style="width:42px">수량</th><th style="width:82px">단가</th><th style="width:84px">공급가액</th>
+    </tr></thead>
+    <tbody>
+      ${rows}
+      <tr class="totrow"><td colspan="5" style="text-align:center">총합계 (VAT 포함)</td><td class="tr">${fmt(total)}</td></tr>
+    </tbody>
+  </table>
+  <div class="bot"></div>
+  <button style="display:none"></button>
+  </body></html>`;
+
+  const w=window.open('','_blank','width=900,height=1100');
+  w.document.write(html); w.document.close();
+  w.onload = () => { w.focus(); w.print(); };
+}
+/* ── 이력 렌더 ── */
+function histCardHTML(h) {
+  return `
+    <div style="background:#fff;border:1px solid #E2E8F0;border-radius:12px;padding:16px 18px;margin-bottom:10px;border-left:4px solid #805AD5;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="background:#805AD5;color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;">입찰번호</span>
+          <span style="font-size:15px;font-weight:700;color:#553C9A;">${h.bid||'(미입력)'}</span>
+        </div>
+        <div style="font-size:12px;color:#9CA3AF;">${h.d||''}</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 16px;font-size:12px;">
+        <div><span style="color:#9CA3AF;">발주처</span> &nbsp;<strong>${h.to||'-'}</strong></div>
+        <div><span style="color:#9CA3AF;">담당자</span> &nbsp;<strong>${h.mgr||'-'}</strong></div>
+        <div><span style="color:#9CA3AF;">모델명</span> &nbsp;<strong>${h.model||'-'}</strong></div>
+        <div><span style="color:#9CA3AF;">최저 쇼핑몰</span> &nbsp;<strong>${h.shop||'-'}</strong></div>
+        <div><span style="color:#9CA3AF;">최저가</span> &nbsp;<strong style="color:#E53E3E;">${h.lowestPrice||'-'}</strong></div>
+        <div><span style="color:#9CA3AF;">견적 금액</span> &nbsp;<strong style="color:#E53E3E;">${h.p||'-'}</strong></div>
+        <div><span style="color:#9CA3AF;">일련번호</span> &nbsp;<strong>${h.num||'-'}</strong></div>
+      </div>
+      ${h.url ? `<div style="margin-top:8px;padding:8px 10px;background:#FAF5FF;border-radius:7px;border:1px solid #D6BCFA;font-size:11px;">
+        <span style="color:#805AD5;font-weight:700;">🔗 최저가 URL</span> &nbsp;
+        <a href="${h.url}" target="_blank" style="color:#6B46C1;word-break:break-all;">${h.url}</a>
+      </div>` : ''}
+      ${h.fileUrl ? `<div style="margin-top:6px;padding:8px 10px;background:#F0FFF4;border-radius:7px;border:1px solid #9AE6B4;font-size:11px;display:flex;align-items:center;gap:8px;">
+        <span style="color:#276749;font-weight:700;">📎 제작사양서</span>
+        <a href="${h.fileUrl}" target="_blank"
+          style="color:#276749;font-weight:600;text-decoration:underline;">
+          ${h.fileName||'사양서 보기'} →
+        </a>
+      </div>` : ''}
+    </div>`;
+}
+
+async function renderHist() {
+  const el = document.getElementById('hist-list');
+  if(!el) return;
+  const keyword = (document.getElementById('hist-search')?.value||'').trim().toLowerCase();
+
+  el.innerHTML = `<div style="text-align:center;padding:30px;color:#9CA3AF;font-size:13px;">
+    <div style="font-size:24px;margin-bottom:8px;">🔄</div>Google Sheets에서 불러오는 중...</div>`;
+
+  // Sheets에서 최신 이력 로드
+  const rows = await loadFromSheet();
+
+  // rows[0]은 헤더이므로 제외, 최신순 정렬
+  const sheetHist = rows.slice(1).reverse().map(r => ({
+    bid: r[0]||'', d: r[1]||'', to: r[2]||'', mgr: r[3]||'',
+    model: r[4]||'', shop: r[5]||'', lowestPrice: r[6]||'',
+    p: r[7]||'', num: r[8]||'', url: r[9]||'',
+    fileUrl: r[10]||'', fileName: r[10] ? '사양서 보기' : ''
+  }));
+
+  // 로컬 + Sheets 합치기 (입찰번호 기준 중복 제거)
+  const allHist = [...sheetHist];
+  hist.forEach(h => {
+    if(!allHist.find(s => s.bid === h.bid && s.num === h.num)) allHist.push(h);
+  });
+
+  const filtered = keyword
+    ? allHist.filter(h => (h.bid||'').toLowerCase().includes(keyword) || (h.t||'').toLowerCase().includes(keyword) || (h.to||'').toLowerCase().includes(keyword) || (h.model||'').toLowerCase().includes(keyword))
+    : allHist;
+
+  if(!filtered.length) {
+    el.innerHTML = `<div style="text-align:center;padding:40px;color:#9CA3AF;font-size:14px;">${keyword ? '검색 결과가 없습니다.' : '견적 이력이 없습니다.'}</div>`;
+    return;
+  }
+
+  el.innerHTML = `<div style="font-size:12px;color:#9CA3AF;margin-bottom:12px;">총 ${filtered.length}건 ${keyword?'(검색결과)':''}</div>`
+    + filtered.map(h => histCardHTML(h)).join('');
+}
+
+function clearHist() {
+  if(!confirm('로컬 이력을 삭제할까요?\n(Google Sheets 데이터는 유지됩니다)')) return;
+  hist=[]; localStorage.setItem('voda_hist','[]');
+  renderHist();
+}
+
+</script>
+</body>
+</html>
